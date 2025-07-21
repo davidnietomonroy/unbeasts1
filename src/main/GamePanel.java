@@ -1,6 +1,8 @@
 package main;
 
 import java.awt.Color;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -56,6 +58,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     // ENTITIES
     public Player player = new Player(this, keyH);
+    
     public Entity obj[][] = new Entity[maxMap][10]; // Objetos por mapa
     public SuperObject superobj[][] = new SuperObject[maxMap][10]; // Super Objetos
     public Entity npc[][] = new Entity[maxMap][10]; // NPCs por mapa
@@ -72,6 +75,8 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+    
+        
     }
 
     public void setupGame() {

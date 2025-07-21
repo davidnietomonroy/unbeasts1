@@ -5,6 +5,8 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.util.ArrayList; // Asegúrate de que este import esté al inicio
+import object.SuperObject;	
 
 import battle.Move;
 import main.GamePanel;
@@ -21,6 +23,7 @@ public class Entity {
     public String[] dialogueOptions;
     public String[] responseYes;
     public String[] responseNo;
+    
 
     // Sistema de tipos
     public Type type = Type.NORMAL;
@@ -30,7 +33,8 @@ public class Entity {
     public BufferedImage image;
     public int spriteCounter = 0;
     public int spriteNum = 1;
-
+    public ArrayList<SuperObject> inventory = new ArrayList<>();
+    public int maxInventorySize = 20;
     // Colisiones
     public Rectangle solidArea = new Rectangle(0, 0, 48, 48);
     public int solidAreaDefaultX, solidAreaDefaultY;
