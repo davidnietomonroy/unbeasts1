@@ -22,66 +22,40 @@ public class KeyHandler implements KeyListener {
         int code = e.getKeyCode();
 
         // --- GESTIÓN DE APERTURA/CIERRE DEL INVENTARIO ---
-        // Se maneja fuera para que siempre funcione, independientemente del estado del juego.
         if (code == KeyEvent.VK_I) {
-            if (gp.ui.inventoryOpen) { // Si ya está abierto, se cierra todo.
+            if (gp.ui.inventoryOpen) {
                 gp.ui.inventoryOpen = false;
                 gp.ui.contextMenuOpen = false;
                 gp.ui.inspectingItem = false;
-                gp.ui.currentTab = 0; // Resetea la pestaña.
-            } else if (gp.gameState == gp.playState || gp.gameState == gp.pauseState) { // Si no, lo abre.
+                gp.ui.currentTab = 0;
+            } else if (gp.gameState == gp.playState || gp.gameState == gp.pauseState) {
                 gp.ui.inventoryOpen = true;
             }
-            return; // Termina el método aquí para no procesar otras teclas en el mismo frame.
+            return;
         }
 
-        // --- SI EL INVENTARIO ESTÁ ABIERTO, DELEGA EL CONTROL ---
+        // --- SI EL INVENTARIO ESTÁ ABIERTO ---
         if (gp.ui.inventoryOpen) {
             handleInventoryKeys(code);
-            return; // MUY IMPORTANTE: Detiene el procesamiento para que las teclas no afecten al juego.
+            return;
         }
-        
-        // --- SI EL INVENTARIO ESTÁ CERRADO, MANEJA LOS ESTADOS DEL JUEGO ---
-        // ✅ CORRECCIÓN: Se revierte a la estructura if-else if.
+
+        // --- MANEJO GENERAL POR ESTADO DE JUEGO ---
         if (gp.gameState == gp.titleState) {
             handleTitleStateKeys(code);
-        }
-        else if (gp.gameState == gp.playState) {
+        } else if (gp.gameState == gp.playState) {
             handlePlayStateKeys(code);
-        }
-        else if (gp.gameState == gp.pauseState) {
+        } else if (gp.gameState == gp.pauseState) {
             handlePauseStateKeys(code);
-        }
-        else if (gp.gameState == gp.dialogueState) {
+        } else if (gp.gameState == gp.dialogueState) {
             handleDialogueStateKeys(code);
-        }
-        else if (gp.gameState == gp.battleState) {
-<<<<<<< HEAD
+        } else if (gp.gameState == gp.battleState) {
             handleBattleStateKeys(code);
         }
 
-        // --- TECLAS DE DEBUG ---
-=======
-            int len = gp.battleManager.options.length;
-
-            if (code == KeyEvent.VK_LEFT) {
-                gp.battleManager.moverSeleccionIzquierda();
-            }
-            if (code == KeyEvent.VK_RIGHT) {
-                gp.battleManager.moverSeleccionDerecha();
-            }
-            if (code == KeyEvent.VK_ENTER) {
-                gp.battleManager.confirmarSeleccion();
-            }
-            if (code == KeyEvent.VK_ESCAPE) {
-            	gp.battleManager.retroceder();
-            }
-
-         }
-        
-        // === DEBUG ===
->>>>>>> 5751134a5107e439ddb7cc376f6fcefea1a0de3a
+        // Otras teclas útiles globales
         if (code == KeyEvent.VK_T) checkDrawTime = !checkDrawTime;
+
         if (code == KeyEvent.VK_R) {
             switch (gp.currentMap) {
                 case 0 -> gp.tileM.loadMap("/maps/map01.txt", 0);
@@ -90,21 +64,14 @@ public class KeyHandler implements KeyListener {
         }
     }
 
-    /**
-     * Gestiona todas las entradas de teclado cuando el inventario está abierto.
-     */
     private void handleInventoryKeys(int code) {
-        // Sub-estado: Inspeccionando un ítem
         if (gp.ui.inspectingItem) {
             if (code == KeyEvent.VK_ESCAPE) {
                 gp.ui.inspectingItem = false;
             }
-        }
-        // Sub-estado: Menú contextual abierto
-        else if (gp.ui.contextMenuOpen) {
+        } else if (gp.ui.contextMenuOpen) {
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) {
                 gp.ui.contextMenuCommandNum--;
-                // Asumiendo que contextMenuOptions está en UI y es accesible
                 if (gp.ui.contextMenuCommandNum < 0) {
                     gp.ui.contextMenuCommandNum = gp.ui.contextMenuOptions.size() - 1;
                 }
@@ -121,28 +88,22 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ESCAPE) {
                 gp.ui.contextMenuOpen = false;
             }
-        }
-        // Sub-estado: Navegación normal del inventario
-        else {
-            // Movimiento del cursor
+        } else {
             if (code == KeyEvent.VK_W || code == KeyEvent.VK_UP) gp.ui.slotRow--;
             if (code == KeyEvent.VK_S || code == KeyEvent.VK_DOWN) gp.ui.slotRow++;
             if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT) gp.ui.slotCol--;
             if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) gp.ui.slotCol++;
 
-            // Límites del cursor para que dé la vuelta (wrapping)
             if (gp.ui.slotRow < 0) gp.ui.slotRow = gp.ui.INVENTORY_ROWS - 1;
             if (gp.ui.slotRow >= gp.ui.INVENTORY_ROWS) gp.ui.slotRow = 0;
             if (gp.ui.slotCol < 0) gp.ui.slotCol = gp.ui.INVENTORY_COLS - 1;
             if (gp.ui.slotCol >= gp.ui.INVENTORY_COLS) gp.ui.slotCol = 0;
 
-            // Cambiar de pestaña
             if (code == KeyEvent.VK_SHIFT) {
                 int maxTabs = 1 + gp.player.partyMembers.size();
                 gp.ui.currentTab = (gp.ui.currentTab + 1) % maxTabs;
             }
 
-            // Abrir el menú contextual
             if (code == KeyEvent.VK_ENTER || code == KeyEvent.VK_E) {
                 gp.ui.openContextMenu();
             }
@@ -198,12 +159,11 @@ public class KeyHandler implements KeyListener {
                 gp.ui.commandNum = (gp.ui.commandNum + 1) % npc.dialogueOptions.length;
             }
             if (code == KeyEvent.VK_ENTER) {
-                 if (gp.ui.commandNum == 0) { // Opción "Sí"
+                if (gp.ui.commandNum == 0) {
                     npc.isInParty = true;
-                    gp.player.partyMembers.add(npc); 
+                    gp.player.partyMembers.add(npc);
                     gp.ui.showNotification(npc.name + " se ha unido a tu equipo!");
                 }
-                // Lógica para avanzar diálogo después de la decisión
                 npc.dialogueOptions = null;
                 gp.ui.commandNum = 0;
                 advanceDialogue(npc);
@@ -214,13 +174,11 @@ public class KeyHandler implements KeyListener {
             }
         }
     }
-    
+
     private void handleBattleStateKeys(int code) {
-        // Asegurarse de que options no es null para evitar errores
-        if(gp.battleManager.options == null) return;
-        
+        if (gp.battleManager.options == null) return;
         int len = gp.battleManager.options.length;
-        if (len == 0) return; // Evitar división por cero
+        if (len == 0) return;
 
         if (code == KeyEvent.VK_LEFT) {
             gp.battleManager.selectedOption = (gp.battleManager.selectedOption + len - 1) % len;
@@ -229,7 +187,10 @@ public class KeyHandler implements KeyListener {
             gp.battleManager.selectedOption = (gp.battleManager.selectedOption + 1) % len;
         }
         if (code == KeyEvent.VK_ENTER) {
-            System.out.println("Opción seleccionada: " + gp.battleManager.options[gp.battleManager.selectedOption]);
+            gp.battleManager.confirmarSeleccion();
+        }
+        if (code == KeyEvent.VK_ESCAPE) {
+            gp.battleManager.retroceder();
         }
     }
 
@@ -250,8 +211,7 @@ public class KeyHandler implements KeyListener {
             npc.dialogueIndex++;
             gp.ui.currentDialogue = npc.dialogues[npc.dialogueIndex];
 
-            // Esto es un ejemplo, podrías querer una forma más robusta de disparar opciones
-            if (npc.dialogueIndex == 1 && npc.dialogueOptions == null) { 
+            if (npc.dialogueIndex == 1 && npc.dialogueOptions == null) {
                 npc.dialogueOptions = new String[]{"Sí", "No"};
             }
         } else {

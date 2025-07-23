@@ -22,6 +22,7 @@ public interface Inventory {
      * * @param item El SuperObject a eliminar.
      */
     void removeItem(SuperObject item);
+    void moveItemToFront(SuperObject item);
 
     /**
      * Devuelve la lista de todos los objetos que se encuentran actualmente en el inventario.
@@ -34,4 +35,6 @@ public interface Inventory {
      * * @return true si no se pueden añadir más objetos, false en caso contrario.
      */
     boolean isFull();
+   
+    
 }

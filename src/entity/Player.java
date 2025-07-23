@@ -26,6 +26,7 @@ public class Player extends Entity {
     public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
         this.keyH = keyH;
+        this.inventory = this.playerInventory;
         
         types[0] = Typechart.POISON;
         types[1] = Typechart.FLYING;

@@ -10,6 +10,7 @@ import object.OBJ_Boots;
 import object.OBJ_Chest;
 import object.OBJ_Door;
 import object.Obj_Espada;
+import object.Obj_raquetaEspada;
 import object.OBJ_Key;
  	
 
@@ -43,6 +44,10 @@ public class AssetSetter {
         gp.superobj[mapNum][1] = new Obj_Espada(gp);
         gp.superobj[mapNum][1].worldX = gp.tileSize * 1;
         gp.superobj[mapNum][1].worldY = gp.tileSize * 1;
+        
+        gp.superobj[mapNum][2] = new Obj_raquetaEspada(gp);
+        gp.superobj[mapNum][2].worldX = gp.tileSize * 4;
+        gp.superobj[mapNum][2].worldY = gp.tileSize * 4;
 
     }
     

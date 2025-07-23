@@ -36,9 +36,9 @@ public class Entity {
     public BufferedImage image;
     public int spriteCounter = 0;
     public int spriteNum = 1;
- // Ahora cada entidad puede tener cualquier tipo de inventario que siga la interfaz.
+ // Ahora cada entidad puede tener cualquier tipo de 	tario que siga la interfaz.
     public Inventory inventory;
-    
+    public SuperObject mainWeapon;
     public int maxInventorySize = 20;
     // Colisiones
     public Rectangle solidArea = new Rectangle(0, 0, 48, 48);
@@ -63,6 +63,7 @@ public class Entity {
 
     public Entity(GamePanel gp) {
         this.gp = gp;
+        
     }
 
     public void setType(Type type) {

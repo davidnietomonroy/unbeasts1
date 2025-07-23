@@ -152,9 +152,28 @@ public class UI {
         contextMenuOptions.clear();
         contextMenuOptions.add("Inspeccionar");
         
-        if (currentTab == 0 && !gp.player.partyMembers.isEmpty()) {
-            for (Entity member : gp.player.partyMembers) {
-                contextMenuOptions.add("Pasar a " + member.name);
+        // --- ✅ NUEVA OPCIÓN AÑADIDA AQUÍ ---
+        // Esta opción aparecerá para cualquier ítem.
+        // Opcional: podrías añadir una condición como if(item.type == "Arma") para mostrarlo solo en armas.
+        contextMenuOptions.add("Usar como arma principal");
+        
+        // --- LÓGICA GENERALIZADA PARA OPCIONES DE TRANSFERENCIA (código existente) ---
+        Entity sourceCharacter = null;
+        if (currentTab == 0) {
+            sourceCharacter = gp.player;
+        } else if (gp.player.partyMembers.size() > currentTab - 1) {
+            sourceCharacter = gp.player.partyMembers.get(currentTab - 1);
+        }
+
+        ArrayList<Entity> allCharacters = new ArrayList<>();
+        allCharacters.add(gp.player);
+        allCharacters.addAll(gp.player.partyMembers);
+
+        if (sourceCharacter != null) {
+            for (Entity target : allCharacters) {
+                if (target != sourceCharacter) { 
+                    contextMenuOptions.add("Pasar a " + target.name);
+                }
             }
         }
 
@@ -169,8 +188,11 @@ public class UI {
         if (selectedOption.equals("Inspeccionar")) {
             inspectingItem = true;
         } 
+        // --- ✅ NUEVA CONDICIÓN PARA MANEJAR LA ACCIÓN ---
+        else if (selectedOption.equals("Usar como arma principal")) {
+            equipMainWeapon();
+        }
         else if (selectedOption.startsWith("Pasar a ")) {
-            // Llama al nuevo método de transferencia
             transferItem();
         }
         
@@ -185,7 +207,7 @@ public class UI {
         SuperObject itemToTransfer = playerItems.get(contextMenuItemIndex);
 
         // 2. Encontrar el NPC de destino por su nombre
-        String targetName = contextMenuOptions.get(contextMenuCommandNum).substring(8); // Extrae "Darwin" de "Pasar a Darwin"
+        String targetName = contextMenuOptions.get(contextMenuCommandNum).substring(8); // Extrae el nombre de "Pasar a [Nombre]"
         Entity targetNPC = null;
         for (Entity member : gp.player.partyMembers) {
             if (member.name.equals(targetName)) {
@@ -201,13 +223,57 @@ public class UI {
                 // Si tuvo éxito, remueve el ítem del inventario del jugador
                 gp.player.playerInventory.removeItem(itemToTransfer);
                 gp.ui.showNotification("Has pasado " + itemToTransfer.name + " a " + targetNPC.name + ".");
+
+                // --- ✅ LÓGICA DE EQUIPAMIENTO AUTOMÁTICO ---
+                // Si el personaje receptor no tiene un arma principal equipada,
+                // se equipa el objeto transferido y se mueve al primer slot del inventario.
+                if (targetNPC.mainWeapon == null) {
+                    targetNPC.mainWeapon = itemToTransfer;
+                    targetNPC.inventory.moveItemToFront(itemToTransfer); // Mueve el ítem al slot rojo
+                    gp.ui.showNotification(targetNPC.name + " ha equipado " + itemToTransfer.name + ".");
+                }
+                
             } else {
                 // Si el inventario del NPC está lleno
                 gp.ui.showNotification("¡El inventario de " + targetNPC.name + " está lleno!");
             }
         }
     }
-    
+    private void equipMainWeapon() {
+        // 1. Identificar el personaje cuyo inventario está abierto
+        Entity character = null;
+        if (currentTab == 0) {
+            character = gp.player;
+        } else if (gp.player.partyMembers.size() > currentTab - 1) {
+            character = gp.player.partyMembers.get(currentTab - 1);
+        }
+
+        if (character == null || character.inventory == null) {
+            return; 
+        }
+
+        // 2. Obtener el ítem que se quiere equipar
+        List<SuperObject> items = getItemsForCurrentTab();
+        if (contextMenuItemIndex >= items.size()) {
+            return; 
+        }
+        SuperObject newWeapon = items.get(contextMenuItemIndex);
+        
+        // --- LÓGICA DE INTERCAMBIO ---
+        // El objeto que antes era el arma principal (character.mainWeapon) no se pierde.
+        // Simplemente se reemplaza la referencia y su lugar en la lista de inventario es
+        // ocupado por la nueva arma al usar moveItemToFront.
+
+        // 3. Asignar la nueva arma como el arma principal de la entidad
+        character.mainWeapon = newWeapon;
+
+        // 4. Mover la nueva arma al slot principal (índice 0) del inventario.
+        // Esto empuja automáticamente el arma anterior a la siguiente posición.
+        character.inventory.moveItemToFront(newWeapon);
+
+        // 5. Mostrar una notificación al usuario
+        showNotification(character.name + " ha equipado " + newWeapon.name + ".");
+    }
 
     public void drawFullScreenInventory() {
         final int frameX = gp.tileSize;
@@ -242,7 +308,7 @@ public class UI {
         g2.setStroke(new BasicStroke(3));
         g2.setColor(Color.white);
         g2.drawRoundRect(cursorX, cursorY, slotSize, slotSize, 10, 10);
-        if (cursorIndex == 0 && currentTab == 0) {
+        if (cursorIndex == 0 ) {
             g2.setStroke(new BasicStroke(4));
             g2.setColor(new Color(200, 0, 0, 200));
             g2.drawRoundRect(cursorX, cursorY, slotSize, slotSize, 10, 10);
@@ -271,7 +337,7 @@ public class UI {
     private void drawContextMenu(int x, int y) {
         int menuX = x + gp.tileSize / 2;
         int menuY = y;
-        int menuWidth = 200;
+        int menuWidth = 300;
         int lineHeight = 35;
         int menuHeight = (lineHeight * contextMenuOptions.size()) + 15;
 

@@ -1,5 +1,5 @@
 package object;
-
+import java.util.Objects;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -21,6 +21,7 @@ public class SuperObject {
 	public String detailedDescription;
 	
 	
+	
 	public void draw(Graphics2D g2, GamePanel gp) {
 		
 		int screenX = worldX - gp.player.worldX + gp.player.screenX;
@@ -34,8 +35,26 @@ public class SuperObject {
 			
 			g2.drawImage(image, screenX, screenY, gp.tileSize, gp.tileSize, null);
 		
+			
 		
 		}
+		
+	}
+	@Override
+	public boolean equals(Object o) {
+	    // 1. Comprueba si es la misma instancia en memoria
+	    if (this == o) return true;
+	    // 2. Comprueba si el objeto es nulo o de una clase diferente
+	    if (o == null || getClass() != o.getClass()) return false;
+	    // 3. Compara si tienen el mismo nombre
+	    SuperObject that = (SuperObject) o;
+	    return Objects.equals(name, that.name);
+	}
+
+	@Override
+	public int hashCode() {
+	    // Genera un código único basado en el nombre del objeto
+	    return Objects.hash(name);
 	}
 }
 	

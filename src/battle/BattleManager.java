@@ -6,8 +6,7 @@ import java.io.IOException;
 import java.util.List;
 import javax.imageio.ImageIO;
 import main.GamePanel;
-import battle.Habilidad;
-import battle.HabilidadDAO;
+
 
 public class BattleManager {
     GamePanel gp;
@@ -64,7 +63,7 @@ public class BattleManager {
         switch (menuState) {
             case 0 -> drawMainMenu(g2);
             case 1 -> drawAttackSubMenu(g2);
-            case 2 -> drawHabilidadesDesdeBD(g2);
+      
         }
     }
 
@@ -102,24 +101,7 @@ public class BattleManager {
         }
     }
 
-    private void drawHabilidadesDesdeBD(Graphics2D g2) {
-        int boxX = gp.tileSize * 2;
-        int boxY = gp.tileSize * 6;
-        int boxW = gp.screenWidth - gp.tileSize * 4;
-        int boxH = gp.tileSize * 6;
-        drawSubWindow(g2, boxX, boxY, boxW, boxH);
-
-        HabilidadDAO dao = new HabilidadDAO();
-        List<Habilidad> habilidades = dao.obtenerHabilidades();
-
-        g2.setFont(new Font("Arial", Font.PLAIN, 18));
-        int y = boxY + 30;
-        for (Habilidad h : habilidades) {
-            g2.setColor(Color.white);
-            g2.drawString(h.getNombre(), boxX + 30, y);
-            y += 25;
-        }
-    }
+   
 
     private void drawSubWindow(Graphics2D g2, int x, int y, int width, int height) {
         Color c = new Color(0, 0, 0, 200);
