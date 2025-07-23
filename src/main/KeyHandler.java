@@ -53,7 +53,104 @@ public class KeyHandler implements KeyListener {
             handleBattleStateKeys(code);
         }
 
+<<<<<<< HEAD
         // Otras teclas útiles globales
+=======
+        // === PLAY STATE ===
+        else if (gp.gameState == gp.playState && !gp.ui.inventoryOpen) {
+            if (code == KeyEvent.VK_W) upPressed = true;
+            if (code == KeyEvent.VK_A) leftPressed = true;
+            if (code == KeyEvent.VK_S) downPressed = true;
+            if (code == KeyEvent.VK_D) rightPressed = true;
+            if (code == KeyEvent.VK_P) gp.gameState = gp.pauseState;
+            if (code == KeyEvent.VK_ENTER) enterPressed = true;
+        }
+
+        // === PAUSE STATE ===
+        else if (gp.gameState == gp.pauseState) {
+            if (code == KeyEvent.VK_P) gp.gameState = gp.playState;
+        }
+
+        // === DIALOGUE STATE ===
+        else if (gp.gameState == gp.dialogueState) {
+            Entity npc = gp.npc[gp.currentMap][gp.currentNPCIndex];
+
+            if (npc != null && npc.isInParty) {
+                gp.ui.currentDialogue = "Ya estamos en esto.";
+                if (code == KeyEvent.VK_ENTER) {
+                    gp.ui.currentDialogue = "";
+                    gp.gameState = gp.playState;
+                }
+                return;
+            }
+
+            if (npc != null && npc.dialogueOptions != null) {
+                if (code == KeyEvent.VK_LEFT || code == KeyEvent.VK_A) {
+                    gp.ui.commandNum = (gp.ui.commandNum + npc.dialogueOptions.length - 1) % npc.dialogueOptions.length;
+                }
+                if (code == KeyEvent.VK_RIGHT || code == KeyEvent.VK_D) {
+                    gp.ui.commandNum = (gp.ui.commandNum + 1) % npc.dialogueOptions.length;
+                }
+
+                if (code == KeyEvent.VK_ENTER) {
+                    if (npc.dialogueIndex + 1 < npc.dialogues.length) {
+                        if (gp.ui.commandNum == 0) {
+                            npc.isInParty = true;
+                            gp.ui.showNotification(npc.name + " se ha unido a tu equipo!");
+                            gp.player.partyMembers.add(npc); 
+                            
+                            if (npc.responseYes != null && npc.responseYes.length > 0) {
+                                npc.dialogues[npc.dialogueIndex + 1] = npc.responseYes[0];
+                            } else {
+                                npc.dialogues[npc.dialogueIndex + 1] = "Está bien.";
+                            }
+                        } else {
+                            if (npc.responseNo != null && npc.responseNo.length > 0) {
+                                npc.dialogues[npc.dialogueIndex + 1] = npc.responseNo[0];
+                            } else {
+                                npc.dialogues[npc.dialogueIndex + 1] = "Ey, ¿pero qué pasa vale??";
+                            }
+                        }
+                    }
+
+                    npc.dialogueOptions = null;
+                    gp.ui.commandNum = 0;
+                    advanceDialogue(npc);
+                }
+            } else {
+                if (code == KeyEvent.VK_ENTER) {
+                    advanceDialogue(npc);
+                }
+            }
+        }
+
+        // === BATTLE STATE ===
+        else if (gp.gameState == gp.battleState) {
+            int len = gp.battleManager.options.length;
+
+            if (code == KeyEvent.VK_LEFT) {
+                gp.battleManager.moverSeleccionIzquierda();
+            }
+            if (code == KeyEvent.VK_RIGHT) {
+                gp.battleManager.moverSeleccionDerecha();
+            }
+            if (code == KeyEvent.VK_ENTER) {
+                gp.battleManager.confirmarSeleccion();
+            }
+            if (code == KeyEvent.VK_ESCAPE) {
+            	gp.battleManager.retroceder();
+            }
+            if (code == KeyEvent.VK_UP) {
+                gp.battleManager.moverSeleccionArriba();
+            }
+            if (code == KeyEvent.VK_DOWN) {
+                gp.battleManager.moverSeleccionAbajo();
+            }
+
+         }
+        
+        // === DEBUG ===
+>>>>>>> e1505726ca4940b223d554bf9abfd62fafdaa5cb
         if (code == KeyEvent.VK_T) checkDrawTime = !checkDrawTime;
 
         if (code == KeyEvent.VK_R) {
