@@ -137,6 +137,12 @@ public class KeyHandler implements KeyListener {
             if (code == KeyEvent.VK_ESCAPE) {
             	gp.battleManager.retroceder();
             }
+            if (code == KeyEvent.VK_UP) {
+                gp.battleManager.moverSeleccionArriba();
+            }
+            if (code == KeyEvent.VK_DOWN) {
+                gp.battleManager.moverSeleccionAbajo();
+            }
 
          }
         
