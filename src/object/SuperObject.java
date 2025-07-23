@@ -18,6 +18,7 @@ public class SuperObject {
 	public String[] types = new String[2]; 
 	UtilityTool uTool = new UtilityTool();
 	public String description;
+	public String detailedDescription;
 	
 	
 	public void draw(Graphics2D g2, GamePanel gp) {

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import object.SuperObject;
 
-public class Inventory_Player implements Inventory {
+public class Inventory_Eduardo implements Inventory {
 
     private List<SuperObject> items;
     private final int maxSize;
 
-    public Inventory_Player(int maxSize) {
+    public Inventory_Eduardo(int maxSize) {
         this.maxSize = maxSize;
         this.items = new ArrayList<>();
     }
@@ -39,4 +39,3 @@ public class Inventory_Player implements Inventory {
         return items.size() >= maxSize;
     }
 }
-

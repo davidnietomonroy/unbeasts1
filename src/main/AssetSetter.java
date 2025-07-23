@@ -1,5 +1,7 @@
 package main;
 
+import Inventory.Inventory_Darwin;
+import Inventory.Inventory_Eduardo;
 import entity.Entity;
 import entity.Monster1;
 import entity.NPC_darwin;
@@ -52,18 +54,24 @@ public class AssetSetter {
         gp.npc[map][0].worldX = gp.tileSize * 21;
         gp.npc[map][0].worldY = gp.tileSize * 21;
         gp.npc[map][0].isInParty = false;
+        gp.npc[map][0].inventory = new Inventory_Eduardo(10);
+
 
         // NPC 1 - Darwin
         gp.npc[map][1] = new NPC_darwin(gp);
         gp.npc[map][1].worldX = gp.tileSize * 21;
         gp.npc[map][1].worldY = gp.tileSize * 22;
         gp.npc[map][1].isInParty = false;
+        gp.npc[map][1].inventory = new Inventory_Darwin(10);
+
 
         // NPC 2 - Enemigo 1 (mirando izquierda)
         gp.npc[map][2] = new Monster1(gp);
         gp.npc[map][2].direction = "left";
         gp.npc[map][2].worldX = gp.tileSize * 21;
         gp.npc[map][2].worldY = gp.tileSize * 23;
+        
+        
 
 
     

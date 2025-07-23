@@ -55,6 +55,9 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     public AssetSetter aSetter = new AssetSetter(this);
     public BattleManager battleManager = new BattleManager(this);
+    public MouseHandler mouseH = new MouseHandler(this);
+    
+    
 
     // ENTITIES
     public Player player = new Player(this, keyH);
@@ -75,6 +78,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setDoubleBuffered(true);
         this.addKeyListener(keyH);
         this.setFocusable(true);
+        this.addMouseListener(mouseH);
     
         
     }
@@ -89,6 +93,7 @@ public class GamePanel extends JPanel implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
     }
+    
 
     @Override
     public void run() {

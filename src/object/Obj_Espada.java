@@ -12,6 +12,7 @@ public class Obj_Espada extends SuperObject {
         name = "Espada";  // <- corregido nombre
         description = "Espada, hace 2 de daño";
         collision = false;
+        detailedDescription = "daño= 0,tipos, hierro, oscuro";
 
         try {
             BufferedImage original = ImageIO.read(getClass().getResourceAsStream("/objects/espada.png"));
