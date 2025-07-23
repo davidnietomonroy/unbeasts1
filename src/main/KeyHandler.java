@@ -126,16 +126,20 @@ public class KeyHandler implements KeyListener {
             int len = gp.battleManager.options.length;
 
             if (code == KeyEvent.VK_LEFT) {
-                gp.battleManager.selectedOption = (gp.battleManager.selectedOption + len - 1) % len;
+                gp.battleManager.moverSeleccionIzquierda();
             }
             if (code == KeyEvent.VK_RIGHT) {
-                gp.battleManager.selectedOption = (gp.battleManager.selectedOption + 1) % len;
+                gp.battleManager.moverSeleccionDerecha();
             }
             if (code == KeyEvent.VK_ENTER) {
-                System.out.println("Opción seleccionada: " + gp.battleManager.options[gp.battleManager.selectedOption]);
+                gp.battleManager.confirmarSeleccion();
             }
-        }
+            if (code == KeyEvent.VK_ESCAPE) {
+            	gp.battleManager.retroceder();
+            }
 
+         }
+        
         // === DEBUG ===
         if (code == KeyEvent.VK_T) checkDrawTime = !checkDrawTime;
 

@@ -147,6 +147,7 @@ public class GamePanel extends JPanel implements Runnable {
             // }
         } else if (gameState == battleState) {
             battleManager.update();
+            
         }
     }
 
