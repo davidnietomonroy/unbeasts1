@@ -56,10 +56,31 @@ public class KeyHandler implements KeyListener {
             handleDialogueStateKeys(code);
         }
         else if (gp.gameState == gp.battleState) {
+<<<<<<< HEAD
             handleBattleStateKeys(code);
         }
 
         // --- TECLAS DE DEBUG ---
+=======
+            int len = gp.battleManager.options.length;
+
+            if (code == KeyEvent.VK_LEFT) {
+                gp.battleManager.moverSeleccionIzquierda();
+            }
+            if (code == KeyEvent.VK_RIGHT) {
+                gp.battleManager.moverSeleccionDerecha();
+            }
+            if (code == KeyEvent.VK_ENTER) {
+                gp.battleManager.confirmarSeleccion();
+            }
+            if (code == KeyEvent.VK_ESCAPE) {
+            	gp.battleManager.retroceder();
+            }
+
+         }
+        
+        // === DEBUG ===
+>>>>>>> 5751134a5107e439ddb7cc376f6fcefea1a0de3a
         if (code == KeyEvent.VK_T) checkDrawTime = !checkDrawTime;
         if (code == KeyEvent.VK_R) {
             switch (gp.currentMap) {

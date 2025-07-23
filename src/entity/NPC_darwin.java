@@ -32,17 +32,17 @@ public class NPC_darwin extends Entity {
     }
 
     public void setDialogue() {
-        dialogues[0] = "Hola Sofia, ¿Que te pasa perra de mierda?";
+        dialogues[0] = "Hola Sofia, ¿Que te pasa hermano?";
         dialogues[1] = "Oh, ¿Asi que quieres que me una a tu grupo?";
         
         
       
         // Nuevas respuestas
         responseYes = new String[] {
-            "A singar"
+            "Pues ya que"
         };
         responseNo = new String[] {
-            "Que cacorra"
+            "Mejor, no queria ir igual"
         };
     }
     
