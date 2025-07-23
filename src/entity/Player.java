@@ -2,9 +2,10 @@ package entity;
 
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+
+import Inventory.Inventory_Player; // Asegúrate que tu clase Inventory_Player esté en esta ruta
 import main.GamePanel;
 import main.KeyHandler;
 import object.SuperObject;
@@ -13,14 +14,15 @@ import types.Typechart;
 public class Player extends Entity {
 
     KeyHandler keyH;
-    
     public final int screenX;
     public final int screenY;
     int hasKey = 0;
     public List<Entity> partyMembers = new ArrayList<>();
     
-    public List<SuperObject> inventory = new ArrayList<>(); 
-    
+    // ✅ SOLUCIÓN: Se declara el inventario AVANZADO del jugador con un nombre único.
+    // Esto evita el conflicto con la variable 'inventory' (ArrayList) heredada de Entity.
+    public Inventory_Player playerInventory; 
+
     public Player(GamePanel gp, KeyHandler keyH) {
         super(gp);
         this.keyH = keyH;
@@ -36,6 +38,9 @@ public class Player extends Entity {
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
 
+        // Se inicializa el inventario del jugador usando la variable con el nombre único.
+        playerInventory = new Inventory_Player(50);
+
         setDefaultValues();
         getPlayerImage();
     }
@@ -47,7 +52,6 @@ public class Player extends Entity {
         direction = "down";
         vidaMaxima = 100;
         vida = vidaMaxima;
-        maxInventorySize = 50; 
     }
 
     public void getPlayerImage() {
@@ -62,21 +66,19 @@ public class Player extends Entity {
     }
 
     public void update() {
-    	if (gp.playerFrozen) return;
-        
+        if (gp.playerFrozen) return;
+
         if (keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed || keyH.enterPressed) {
             if (keyH.upPressed) direction = "up";
             else if (keyH.downPressed) direction = "down";
             else if (keyH.leftPressed) direction = "left";
             else if (keyH.rightPressed) direction = "right";
-            
+
             collisionOn = false;
             gp.cChecker.checkTile(this);
-            
-            // Esta llamada es la que causa el error si CollisionChecker no está actualizado.
             int objIndex = gp.cChecker.checkObject(this, true); 
             pickUpObject(objIndex);
-            
+
             int npcIndex = gp.cChecker.checkEntity(this, gp.npc);
             interactNPC(npcIndex);
 
@@ -88,7 +90,7 @@ public class Player extends Entity {
                     case "right": worldX += speed; break;
                 }
             }
-            
+
             gp.keyH.enterPressed = false;
 
             spriteCounter++;
@@ -107,43 +109,26 @@ public class Player extends Entity {
                 SuperObject pickedObject = gp.superobj[gp.currentMap][i];
 
                 if (pickedObject != null) {
-                    switch (pickedObject.name) {
-                        case "key":
-                            hasKey++;
-                            gp.superobj[gp.currentMap][i] = null;
-                            gp.ui.showNotification("¡Has encontrado una llave!");
-                            break;
-                        case "Door":
-                            if (hasKey > 0) {
-                                gp.superobj[gp.currentMap][i] = null;
-                                hasKey--;
-                                gp.ui.showNotification("Puerta abierta.");
-                            } else {
-                                gp.ui.showNotification("Necesitas una llave.");
-                            }
-                            break;
-                        case "Boots":
-                            speed += 2;
-                            gp.superobj[gp.currentMap][i] = null;
-                            gp.ui.showNotification("¡Más velocidad!");
-                            break;
-                        case "Espada":
-                            inventory.add(pickedObject);
-                            gp.ui.showNotification("¡Has recogido una " + pickedObject.name + "!");
-                            gp.superobj[gp.currentMap][i] = null;
-                            break;
+                    // ✅ Se llama al método addItem() desde la variable correcta 'playerInventory'.
+                    // Esto ahora funciona porque 'playerInventory' es del tipo Inventory_Player.
+                    boolean added = playerInventory.addItem(pickedObject);
+                    if (added) {
+                        gp.ui.showNotification("¡Has recogido una " + pickedObject.name + "!");
+                        gp.superobj[gp.currentMap][i] = null;
+                    } else {
+                        gp.ui.showNotification("No puedes cargar más objetos.");
                     }
                 }
             }
         }
     }
-    
+
     public void interactNPC(int i) {
-    	if (i != 999 && gp.keyH.enterPressed) {
-    		gp.currentNPCIndex = i;
-    		gp.gameState = gp.dialogueState;
-    		gp.npc[gp.currentMap][i].speak();
-    	}
+        if (i != 999 && gp.keyH.enterPressed) {
+            gp.currentNPCIndex = i;
+            gp.gameState = gp.dialogueState;
+            gp.npc[gp.currentMap][i].speak();
+        }
     }
 
     public void draw(Graphics2D g2) {

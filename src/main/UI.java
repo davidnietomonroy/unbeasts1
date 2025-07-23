@@ -1,4 +1,3 @@
-
 package main;
 
 import java.awt.BasicStroke;
@@ -7,6 +6,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import entity.Entity;
 import object.SuperObject;
@@ -26,21 +26,19 @@ public class UI {
     public int slotCol = 0;
     public int slotRow = 0;
     public final int INVENTORY_COLS = 7;
-    public int INVENTORY_ROWS; // Ya no es final
-    public int MAX_INVENTORY_SIZE; // Ya no es final
+    public int INVENTORY_ROWS;
+    public int MAX_INVENTORY_SIZE;
 
     public UI(GamePanel gp) {
         this.gp = gp;
         arial_40 = new Font("Arial", Font.PLAIN, 40);
         arial_80B = new Font("Arial", Font.BOLD, 80);
 
-        // --- Cálculo dinámico de filas del inventario ---
         final int slotSize = gp.tileSize + 8;
         final int slotSpacing = 10;
         final int totalSlotHeight = slotSize + slotSpacing;
         final int invFrameHeight = (int)(gp.screenHeight * 0.75) - gp.tileSize;
         
-        // El '- 40' representa un padding vertical (ej. 20 arriba y 20 abajo)
         this.INVENTORY_ROWS = (invFrameHeight - 40) / totalSlotHeight;
         this.MAX_INVENTORY_SIZE = INVENTORY_ROWS * INVENTORY_COLS;
     }
@@ -87,7 +85,6 @@ public class UI {
         final int frameX = gp.tileSize;
         final int frameY = gp.tileSize;
         final int frameWidth = gp.screenWidth - (gp.tileSize * 2);
-
         final int invFrameHeight = (int)(gp.screenHeight * 0.75) - gp.tileSize;
         final int descFrameY = frameY + invFrameHeight + 10;
         final int descFrameHeight = gp.screenHeight - descFrameY - gp.tileSize;
@@ -96,8 +93,18 @@ public class UI {
         drawSubWindow(frameX, descFrameY, frameWidth, descFrameHeight);
         drawInventoryTabs(frameX, frameY);
 
-        Entity character = (currentTab == 0) ? gp.player : gp.player.partyMembers.get(currentTab - 1);
-        List<SuperObject> items = character.inventory;
+        List<SuperObject> items;
+
+        if (currentTab == 0) {
+            items = gp.player.playerInventory.getItems(); 
+        } else {
+            Entity partyMember = gp.player.partyMembers.get(currentTab - 1);
+            items = partyMember.inventory; 
+        }
+        
+        if (items == null) {
+            items = new ArrayList<>();
+        }
 
         final int slotStartX = frameX + 20;
         final int slotStartY = frameY + 20;
@@ -106,15 +113,29 @@ public class UI {
         int slotX = slotStartX;
         int slotY = slotStartY;
 
+        // --- Dibuja slots e ítems ---
         for (int i = 0; i < MAX_INVENTORY_SIZE; i++) {
+            // Fondo del slot
             g2.setColor(new Color(255, 255, 255, 60));
             g2.setStroke(new BasicStroke(2));
             g2.fillRoundRect(slotX, slotY, slotSize, slotSize, 10, 10);
 
+            // Ítem
             if (i < items.size()) {
-                g2.drawImage(items.get(i).image, slotX + 4, slotY + 4, gp.tileSize, gp.tileSize, null);
+                SuperObject obj = items.get(i);
+                BufferedImage icon = obj.image;
+
+                if (icon != null) {
+                    g2.drawImage(icon, slotX + 4, slotY + 4, gp.tileSize, gp.tileSize, null);
+                }
             }
 
+            // Guarda posición para pintar después el borde rojo si es necesario
+            if (i == 0 && currentTab == 0) {
+                // Después dibujaremos el borde rojo encima del cursor si está en 0
+            }
+
+            // Actualiza posición de slot
             slotX += slotSize + slotSpacing;
             if ((i + 1) % INVENTORY_COLS == 0) {
                 slotX = slotStartX;
@@ -122,16 +143,29 @@ public class UI {
             }
         }
 
+        // --- Dibuja cursor blanco ---
         int cursorX = slotStartX + (slotCol * (slotSize + slotSpacing));
         int cursorY = slotStartY + (slotRow * (slotSize + slotSpacing));
-        g2.setColor(Color.white);
-        g2.setStroke(new BasicStroke(3));
-        g2.drawRoundRect(cursorX, cursorY, slotSize, slotSize, 10, 10);
+        int cursorIndex = slotCol + (slotRow * INVENTORY_COLS);
 
-        int itemIndex = slotCol + (slotRow * INVENTORY_COLS);
-        if (itemIndex < items.size()) {
-            SuperObject selectedItem = items.get(itemIndex);
+        if (cursorIndex == 0 && currentTab == 0) {
+            g2.setColor(Color.white);
+            g2.setStroke(new BasicStroke(5));
+            g2.drawRoundRect(cursorX, cursorY, slotSize, slotSize, 10, 10);
 
+            // Dibuja el borde rojo *encima* del blanco para asegurar visibilidad
+            g2.setColor(new Color(200, 0, 0, 200)); // Rojo semitransparente
+            g2.setStroke(new BasicStroke(4));
+            g2.drawRoundRect(cursorX, cursorY, slotSize, slotSize, 10, 10);
+        } else {
+            g2.setColor(Color.white);
+            g2.setStroke(new BasicStroke(3));
+            g2.drawRoundRect(cursorX, cursorY, slotSize, slotSize, 10, 10);
+        }
+
+        // --- Dibuja descripción del ítem seleccionado ---
+        if (cursorIndex < items.size()) {
+            SuperObject selectedItem = items.get(cursorIndex);
             int textX = frameX + 20;
             int textY = descFrameY + gp.tileSize - 10;
 
@@ -148,6 +182,8 @@ public class UI {
         }
     }
 
+    // ... EL RESTO DE LA CLASE UI PERMANECE IGUAL ...
+    // (drawInventoryTabs, drawTitleScreen, etc.)
     public void drawInventoryTabs(int frameX, int frameY) {
         int tabWidth = 120;
         int tabHeight = 35;
@@ -221,45 +257,33 @@ public class UI {
     }
 
     public void drawDialogueScreen() {
-        // --- Dimensiones y fondo de la ventana ---
         int x = gp.tileSize * 2;
         int y = gp.tileSize / 2;
         int width = gp.screenWidth - (gp.tileSize * 4);
         int height = gp.tileSize * 4;
-
         drawSubWindow(x, y, width, height);
 
-        // --- Estilo y posición del texto ---
         g2.setFont(g2.getFont().deriveFont(Font.PLAIN, 28F));
         int textX = x + gp.tileSize - 30;
         int textY = y + gp.tileSize;
 
-        // --- Dibujar el diálogo principal con sombra ---
         for (String line : currentDialogue.split("\n")) {
-            
-            // Texto principal (en blanco)
             g2.setColor(Color.white);
             g2.drawString(line, textX, textY);
-            
             textY += 40;
         }
 
-        // --- Dibujar opciones del diálogo con sombra ---
         Entity npc = gp.npc[gp.currentMap][gp.currentNPCIndex];
         if (npc != null && npc.dialogueOptions != null) {
-            int optionY = y + height - 60; // Posición Y para las opciones
+            int optionY = y + height - 60;
             
             for (int i = 0; i < npc.dialogueOptions.length; i++) {
-                // Aumentamos el espaciado para que no se solapen
                 int optionX = textX + (i * 80); 
                 String optionText = npc.dialogueOptions[i];
                 
-               
-                
-                // Texto de la opción (amarillo si está seleccionada, si no, blanco)
                 if (commandNum == i) {
                     g2.setColor(Color.yellow);
-                    g2.drawString(">", optionX - 20, optionY); // Indicador de selección
+                    g2.drawString(">", optionX - 20, optionY);
                 } else {
                     g2.setColor(Color.white);
                 }
@@ -306,18 +330,19 @@ public class UI {
     }
 
     public void drawSubWindow(int x, int y, int width, int height) {
-        Color c = new Color(30, 30, 30, 230); // Gris más oscuro
+        Color c = new Color(30, 30, 30, 230);
         g2.setColor(c);
         g2.fillRoundRect(x, y, width, height, 35, 35);
 
-        c = new Color(220, 220, 220, 80); // borde blanco tenue (ahora gris más claro)
+        c = new Color(220, 220, 220, 80);
         g2.setColor(c);
         g2.setStroke(new BasicStroke(4));
         g2.drawRoundRect(x + 5, y + 5, width - 10, height - 10, 25, 25);
     }
+
     public int getXforCenteredText(String text) {
         int length = (int) g2.getFontMetrics().getStringBounds(text, g2).getWidth();
         return gp.screenWidth / 2 - length / 2;
     }
-}
 
+}
