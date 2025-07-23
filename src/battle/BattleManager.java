@@ -180,25 +180,39 @@ public class BattleManager {
             g2.drawString(attackOptions[i], textX, textY);
         }
     }
-
+    
     public void drawHabilidadesDesdeBD(Graphics2D g2) {
-        g2.setFont(new Font("Arial", Font.PLAIN, 24));
+        int boxW = gp.tileSize * 6;
+        int boxH = gp.tileSize * 6;
+        
+        // Ubicación: un poco más arriba y más a la derecha
+        int boxX = gp.screenWidth - boxW - gp.tileSize * 2; 
+        int boxY = gp.screenHeight - boxH - gp.tileSize * 1;
+
+        drawSubWindow(g2, boxX, boxY, boxW, boxH);
+
+        g2.setFont(new Font("Arial", Font.PLAIN, 20));
         g2.setColor(Color.CYAN);
-        g2.drawString("Selecciona una habilidad:", 50, 80);
+        g2.drawString("Habilidades:", boxX + 20, boxY + 30);
 
         if (habilidades != null) {
             for (int i = 0; i < habilidades.size(); i++) {
+                int textX = boxX + 40;
+                int textY = boxY + 60 + (i * 30);
+
                 if (i == selectedSubOption) {
                     g2.setColor(Color.YELLOW);
-                    g2.drawString("→ " + habilidades.get(i).getNombre(), 70, 120 + i * 30);
+                    g2.drawString("→ " + habilidades.get(i).getNombre(), textX, textY);
                 } else {
                     g2.setColor(Color.WHITE);
-                    g2.drawString(habilidades.get(i).getNombre(), 90, 120 + i * 30);
+                    g2.drawString(habilidades.get(i).getNombre(), textX + 20, textY);
                 }
             }
         }
     }
 
+
+  
     private void drawSubWindow(Graphics2D g2, int x, int y, int width, int height) {
         Color c = new Color(0, 0, 0, 200);
         g2.setColor(c);
@@ -257,10 +271,35 @@ public class BattleManager {
             if (enemigoActual.vida < 0) enemigoActual.vida = 0;
 
             mensajesBatalla.add("Sofía ataca con espada causando " + danio + " de daño.");
+
+            if (enemigoActual.vida <= 0) {
+                mensajesBatalla.add(enemigoActual.name + " ha sido derrotado.");
+                gp.gameState = gp.playState;
+            }
         }
 
         retroceder();
     }
+
+    
+    private void usarHabilidad(Habilidad habilidad) {
+        int danio = habilidad.getDamage();
+
+        if (enemigoActual != null) {
+            enemigoActual.vida -= danio;
+            if (enemigoActual.vida < 0) enemigoActual.vida = 0;
+
+            mensajesBatalla.add("Sofía usa " + habilidad.getNombre() + " causando " + danio + " de daño.");
+
+            if (enemigoActual.vida <= 0) {
+                mensajesBatalla.add(enemigoActual.name + " ha sido derrotado.");
+                gp.gameState = gp.playState;
+            }
+        }
+
+        retroceder();
+    }
+ 
     
     private void enemigoContraataca() {
         int daño = new Random().nextInt(11) + 10; // 10 a 20
@@ -268,6 +307,11 @@ public class BattleManager {
         if (jugador.vida < 0) jugador.vida = 0;
 
         mensajesBatalla.add(enemigoActual.name + " ataca causando " + daño + " de daño.");
+
+        if (jugador.vida <= 0) {
+            mensajesBatalla.add("¡Sofía ha sido derrotada!");
+            System.exit(0); // Cierra la aplicación completamente
+        }
     }
 
 
@@ -290,9 +334,11 @@ public class BattleManager {
                 case 0 -> {
                     if (turnoJugador) {
                         atacarConEspada();
-                        turnoJugador = false;
-                        enemigoContraataca();
-                        turnoJugador = true;
+                        if (enemigoActual.vida > 0) {
+                        	turnoJugador = false;
+                            enemigoContraataca();
+                            turnoJugador = true;
+                        }
                     }
                     menuState = 0;
                 }
@@ -308,7 +354,15 @@ public class BattleManager {
             }
         } else if (menuState == 2) {
             Habilidad habilidad = habilidades.get(selectedSubOption);
+            usarHabilidad(habilidad);
             mensajesBatalla.add("Has usado la habilidad: " + habilidad.getNombre());
+            
+            if (enemigoActual.vida > 0) {
+            	turnoJugador = false;
+                enemigoContraataca();
+                turnoJugador = true;
+            }
+            
             menuState = 0;
         }
     }
